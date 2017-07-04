@@ -2,10 +2,10 @@
 抓取微信公众号文章
 
 pre：
-   没有用框架，直接clone 就可以用，采集文章是 `dailydown.py`
+   没有用框架，直接clone 就可以用 
 
- - <a target="_blank" href="http://www.leon0204.com/weixin">采集公众号文章效果</a>
- - <a target="_blank" href="http://www.leon0204.com/weixinToday">采集热点，热点文章效果</a>
+ - <a target="view_window" href="http://www.leon0204.com/weixin">采集公众号文章效果</a>   `dailydown.py`
+ - <a target="_blank" href="http://www.leon0204.com/weixinToday">采集热点，热点文章效果</a>   `dailydownbyKeywords.py`
 
 ####  获取代码
 ```
