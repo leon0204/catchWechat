@@ -4,8 +4,8 @@
 pre：
    没有用框架，直接clone 就可以用，采集文章是 `dailydown.py`
 
- -[采集文章效果](http://www.leon0204.com/weixin)
- - <a href="http://www.leon0204.com/weixinToday">采集热点，热点文章效果</a>
+ - <a target="_blank" href="http://www.leon0204.com/weixin">采集公众号文章效果</a>
+ - <a target="_blank" href="http://www.leon0204.com/weixinToday">采集热点，热点文章效果</a>
 
 ####  获取代码
 ```
