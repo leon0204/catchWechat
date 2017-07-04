@@ -4,8 +4,8 @@
 pre：
    没有用框架，直接clone 就可以用 
 
- - `dailydown.py` <a href="http://www.leon0204.com/weixin" target="_blank">我的博客</a>
- - <a target="_blank" href="http://www.leon0204.com/weixinToday">采集热点，热点文章效果</a>   `dailydownbyKeywords.py`
+ - `dailydown.py` ： <a href="http://www.leon0204.com/weixin" target="_blank">采集配置的公众号的文章效果</a>
+ - `dailydownbyKeywords.py` ： <a target="_blank" href="http://www.leon0204.com/weixinToday">采集热点，热点文章效果</a>   
 
 ####  获取代码
 ```
