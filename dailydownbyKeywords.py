@@ -32,36 +32,7 @@ class weixin_spider:
         self.check = True
 
 
-    def getSubList(self):
-        # 查询公众号列表
-        self.config = {
-            'host': '127.0.0.1',
-            'port': 3306,
-            'user': 'xxxx',
-            'passwd': 'xxxx',
-            'db': 'xxxx',
-            'charset': 'utf8mb4'
-        }
-        self.conn = mdb.connect(**self.config)
 
-        cursor = self.conn.cursor()
-        try:
-            sql = "select subEname,subName from subscription where status= 1 "
-            cursor.execute(sql)
-            temp = cursor.fetchall()
-            return  temp
-            # 如果没有设置自动提交事务，则这里需要手动提交一次
-            self.conn.commit()
-        except:
-            import traceback
-            traceback.print_exc()
-            # 发生错误时会滚
-            self.conn.rollback()
-        finally:
-            # 关闭游标连接
-            cursor.close()
-            # 关闭数据库连接
-            self.conn.close()
 
     #入口函数
     def run(self):
@@ -151,7 +122,11 @@ class weixin_spider:
         if(isexist):#判断文章是否存在
 
             #3 发布时间
-            data['createtime'] = selector.xpath('//*[@id="post-date"]/text()')[0]
+            if(selector.xpath('//*[@id="post-date"]/text()')):
+                data['createtime'] = selector.xpath('//*[@id="post-date"]/text()')[0]
+            else:
+                data['createtime'] = ''
+
 
             #作者昵称
             # data['nickname'] = selector.xpath('//*[@id="img-content"]/div[1]/em[2]/text()')[0]
@@ -162,52 +137,57 @@ class weixin_spider:
             # 4 图片
 
             #先获取全文，待会儿方便替换图片地址
-            body = soup.find_all('div', class_='rich_media_content ')[0]
-            body = str(body).replace('data-src', 'src')
+            if(soup.find_all('div', class_='rich_media_content ')):
+                body = soup.find_all('div', class_='rich_media_content ')[0]
+                body = str(body).replace('data-src', 'src')
 
 
-            imgurl = selector.xpath('//*[@id="js_content"]/p/img/@data-src')
-            imgSpan = selector.xpath('//*[@id="js_content"]/p/span/img/@data-src')
-            imgEmSpan = selector.xpath('//*[@id="js_content"]/p/em/span/img/@data-src')
-            imgStrongSpan = selector.xpath('//*[@id="js_content"]/p/strong/span/img/@data-src')
-            imgStrongSpanStrongSpan = selector.xpath('//*[@id="js_content"]/p/strong/span/strong/span/img/@data-src')
-            imgTotal = imgurl + imgSpan + imgEmSpan + imgStrongSpan + imgStrongSpanStrongSpan
+                imgurl = selector.xpath('//*[@id="js_content"]/p/img/@data-src')
+                imgSpan = selector.xpath('//*[@id="js_content"]/p/span/img/@data-src')
+                imgEmSpan = selector.xpath('//*[@id="js_content"]/p/em/span/img/@data-src')
+                imgStrongSpan = selector.xpath('//*[@id="js_content"]/p/strong/span/img/@data-src')
+                imgStrongSpanStrongSpan = selector.xpath(
+                    '//*[@id="js_content"]/p/strong/span/strong/span/img/@data-src')
+                imgTotal = imgurl + imgSpan + imgEmSpan + imgStrongSpan + imgStrongSpanStrongSpan
 
-            img = ''
-            for i in range(len(imgTotal)):
-                ##1 下载图片
-                imgpath = str(time.time()) + str(int(random.uniform(10, 20)))   # 用当前时间戳＋一个随机数 保证图片名称唯一性
-                if not os.path.exists('/home/wwwroot/laravel/public/img/daily/' + data['user']):
-                    os.makedirs('/home/wwwroot/laravel/public/img/daily/' + data['user'], mode=0755)
-                newImgPath = '/home/wwwroot/laravel/public/img/daily/' + data['user'] + '/' + imgpath + '.jpg'
-                urllib.urlretrieve(imgTotal[i],newImgPath)
+                img = ''
+                for i in range(len(imgTotal)):
+                    ##1 下载图片
+                    imgpath = str(time.time()) + str(int(random.uniform(10, 20)))  # 用当前时间戳＋一个随机数 保证图片名称唯一性
+                    if not os.path.exists('/home/wwwroot/laravel/public/img/daily/' + data['user']):
+                        os.makedirs('/home/wwwroot/laravel/public/img/daily/' + data['user'], mode=0755)
+                    newImgPath = '/home/wwwroot/laravel/public/img/daily/' + data['user'] + '/' + imgpath + '.jpg'
+                    urllib.urlretrieve(imgTotal[i], newImgPath)
 
-                # 2 替换body 的愿路径 和本服务器的路径
-                saveimgpath = newImgPath.replace('/home/wwwroot/laravel/public','')
-                body = body.replace(imgTotal[i],'http://leon0204.com'+saveimgpath)
+                    # 2 替换body 的愿路径 和本服务器的路径
+                    saveimgpath = newImgPath.replace('/home/wwwroot/laravel/public', '')
+                    body = body.replace(imgTotal[i], 'http://leon0204.com' + saveimgpath)
 
-                img += 'http://leon0204.com'+newImgPath
-            data['imgurl'] = img
+                    img += 'http://leon0204.com' + newImgPath
+                data['imgurl'] = img
 
-            #5 文章主体部分
-            file_path = data['title']
-            file = file_path.replace('/', '-')
-            if not os.path.exists('/home/wwwroot/url/daily/' + data['user']):
-                os.makedirs('/home/wwwroot/url/daily/' + data['user'], mode=0755)
-            with open('/home/wwwroot/url/daily/' + data['user'] + '/' + file, 'w') as f:
-                f.write(body)
-            data['body'] = '/home/wwwroot/url/daily/' + data['user'] + '/' + file
+                # 5 文章主体部分
+                file_path = data['title']
+                file = file_path.replace('/', '-')
+                if not os.path.exists('/home/wwwroot/url/daily/' + data['user']):
+                    os.makedirs('/home/wwwroot/url/daily/' + data['user'], mode=0755)
+                with open('/home/wwwroot/url/daily/' + data['user'] + '/' + file, 'w') as f:
+                    f.write(body)
+                data['body'] = '/home/wwwroot/url/daily/' + data['user'] + '/' + file
+
+                # 6 信息处理状态： 0 未处理  1 图片已经转储到本地 2 已经发布到线上待处理数据库
+                data['status'] = 0
+
+                self.log('suceess : 抓取文章：' + data['title'] + '成功！')
+                ##存储
+                self.saveInfo(data)
+            else:
+                body = ''
 
 
-
-            #6 信息处理状态： 0 未处理  1 图片已经转储到本地 2 已经发布到线上待处理数据库
-            data['status'] = 0
-
-            self.log('suceess : 抓取文章：'+data['title'] +'成功！' )
-            ##存储
-            self.saveInfo(data)
         else:
             self.log('waring : have checked unlink-subscription，catch forwards!')
+
 
 
 
