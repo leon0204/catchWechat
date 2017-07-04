@@ -4,6 +4,9 @@
 pre：
    没有用框架，直接clone 就可以用，采集文章是 `dailydown.py`
 
+[采集文章效果](http://www.leon0204.com/weixin)
+[每日热词/热点 效果](http://www.leon0204.com/weixinToday)
+
 ####  获取代码
 ```
 cd /home/wwwroot
@@ -35,3 +38,5 @@ python dailydown.py
 1. dailyKeyword 采集热点关键词时，空数据时候插入，没数据是不会插入，没有写插入语句
 2. 图片采集的优化 目前规则比较 
 
+
+仅做学习用途
