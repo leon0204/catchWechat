@@ -34,6 +34,9 @@ python dailydown.py
 数据会存在 `subcatch` 表中 
 
 
+#### 优化
+1 资源删除，热点抓取bug 修复
+
 `TODO` :
 1. dailyKeyword 采集热点关键词时，空数据时候插入，没数据是不会插入，没有写插入语句
 2. 图片采集的优化 目前规则比较 
