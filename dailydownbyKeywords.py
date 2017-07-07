@@ -17,6 +17,7 @@ import json
 import os
 import ssl
 import random
+import shutil
 
 import urllib
 import urllib2
@@ -46,6 +47,7 @@ class weixin_spider:
         self.log('抓取主页热词列表成功！：')
         #先将昨天的排行列表文章全部删除 软删除
         self.remove()
+        self.removeFile()
         for x in  res['keyword']:
             print x
         for i in range(0,10):
@@ -63,6 +65,12 @@ class weixin_spider:
         for list in content:
             maincontent = self.get_content(list,i)
 
+    def removeFile(self):
+        # 删除文件夹
+        if os.path.exists('/home/wwwroot/laravel/public/img/daily/'):
+            shutil.rmtree(r'/home/wwwroot/laravel/public/img/daily')  # pic
+        if os.path.exists('/home/wwwroot/url/daily/'):
+            shutil.rmtree(r'/home/wwwroot/url/daily')  # html
 
 
 
@@ -243,7 +251,7 @@ class weixin_spider:
         cursor = self.conn.cursor()
         try:
             sql = (
-            "update daily SET status =1"
+                "truncate daily "
             )
 
             cursor.execute(sql)
