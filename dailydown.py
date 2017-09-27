@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #-*- coding:utf8 -*-
-
+# (老版本)
 #每天采集数据库中 公众号 的更新文章
 #这三行代码是防止在python2上面编码错误的，在python3上面不要要这样设置
 import sys
