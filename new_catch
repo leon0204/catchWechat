@@ -147,6 +147,7 @@ class weixin_spider:
             for i in range(len(newlist)):
                 print i
                 if (newlist[i].encode("UTF-8") != ''):
+                    tempBody = newlist[i]
                     newlist[i] = newlist[i].replace('https:','')
                     newlist[i] = newlist[i].replace('http:','')
                     newlist[i] = newlist[i].replace('//','http://')
@@ -160,7 +161,7 @@ class weixin_spider:
 
                     # 2 替换body 的愿路径 和本服务器的路径
                     saveimgpath = newImgPath.replace('/home/wwwroot/laravel/public', '')
-                    body = body.replace(newlist[i], 'https://www.leon0204.com' + saveimgpath)
+                    body = body.replace(tempBody, 'https://www.leon0204.com' + saveimgpath)
                     #  加一个insert uploadImg
                     img += 'https://www.leon0204.com' + newImgPath
             data['imgurl'] = img
