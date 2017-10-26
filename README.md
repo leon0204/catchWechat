@@ -6,6 +6,7 @@ pre：
 
  - `dailydown.py` ： <a href="http://www.leon0204.com/weixin" target="_blank">采集配置的公众号的文章效果</a>
  - `dailydownbyKeywords.py` ： <a target="_blank" href="http://www.leon0204.com/weixinToday">采集热点关键词，热门文章效果</a>   
+ - `newcatch.py` ：  推荐使用，抓取指定 公众号url 
 
 ####  获取代码
 ```
