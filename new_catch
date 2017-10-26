@@ -147,7 +147,9 @@ class weixin_spider:
             for i in range(len(newlist)):
                 print i
                 if (newlist[i].encode("UTF-8") != ''):
-                    newlist[i] = newlist[i].replace('//res', 'http://res')
+                    newlist[i] = newlist[i].replace('https:','')
+                    newlist[i] = newlist[i].replace('http:','')
+                    newlist[i] = newlist[i].replace('//','http://')
                     ##1 下载图片
 
                     imgpath = str(time.time()) + str(int(random.uniform(10, 20)))  # 保证图片名称唯一性
