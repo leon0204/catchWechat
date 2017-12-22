@@ -8,6 +8,23 @@ pre：
  - `dailydownbyKeywords.py` ： <a target="_blank" href="http://www.leon0204.com/wechat.html">采集热点关键词，热门文章效果</a>   
  - `newcatch.py` ：  推荐使用，抓取指定 公众号url (持续更新)
 
+####  使用的 pip 模块
+```
+pip install requests
+pip install lxml
+pip install BeautifulSoup
+
+# Ubantu
+apt-get install libmysqld-dev
+easy_install MySQL-python
+
+# Centos
+yum install python-devel
+yum install mysql-devel
+
+```
+
+
 ####  获取代码
 ```
 cd /home/wwwroot
