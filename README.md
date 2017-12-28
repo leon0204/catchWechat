@@ -1,14 +1,28 @@
-# CatchWecaht
+# CatchWecatch
 抓取微信公众号文章
 
 pre：
    没有用框架，直接clone 就可以用 
 
+ - `catch_allList.py` ：  <a href="http://www.leon0204.com/wechat.html" target="_blank">推荐使用，抓取指定 公众号url (持续更新)</a>
+ 
+ 
+ 
+ 延伸：
  - `dailydown.py` ： <a href="http://www.leon0204.com/wechat.html" target="_blank">采集配置的公众号的文章效果</a>
  - `dailydownbyKeywords.py` ： <a target="_blank" href="http://www.leon0204.com/wechat.html">采集热点关键词，热门文章效果</a>   
- - `newcatch.py` ：  推荐使用，抓取指定 公众号url (持续更新)
+ 
 
-####  使用的 pip 模块
+####  安装 pip
+```
+wget --no-check-certificate https://github.com/pypa/pip/archive/1.5.5.tar.gz 
+tar zvxf 1.5.5.tar.gz    
+cd pip-1.5.5/
+python setup.py install
+pip install --upgrade pip
+```
+
+####  使用到的 pip 模块
 ```
 pip install requests
 pip install lxml
