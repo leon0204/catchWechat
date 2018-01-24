@@ -13,7 +13,7 @@ pre：
  
  延伸：
  - `dailydown.py` ： <a href="http://www.leon0204.com/wechat.html" target="_blank">采集配置的公众号的文章效果</a>
- - `dailydownbyKeywords.py` ： <a target="_blank" href="http://www.leon0204.com/wechat.html">采集热点关键词，热门文章效果</a>   
+ - `dailydownbyKeywords.py` ： <a target="_blank" href="http://www.leon0204.com/wechat.html">采集搜狗首页10个热点关键词，每日更新关键词对应的前10篇文章</a>   
  
 
 ####  安装 pip
