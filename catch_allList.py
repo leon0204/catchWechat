@@ -17,6 +17,7 @@ from urllib import quote
 from lxml import etree
 from lxml import html
 from bs4 import BeautifulSoup
+from selenium import webdriver
 
 import MySQLdb as mdb
 
@@ -51,12 +52,27 @@ class weixin_spider:
             data['user'] = selector.xpath('//*[@id="post-user"]/text()')[0]
         else:
             data['user'] = ''
-            
-        if (selector.xpath('//*[@id="activity-name"]/text()')):
-            data['title'] = selector.xpath('//*[@id="activity-name"]/text()')[0]
+        
+        # 使用webdriver.PhantomJS
+        driver = webdriver.PhantomJS(executable_path='/statics/phantomjs-2.1.1-linux-x86_64/bin/phantomjs',
+                                     service_args=['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1'])
+        driver.get(each)
+        page_source =  driver.page_source
+        page_source_selector = etree.HTML(page_source)
+        
+        
+         # 1 标题
+        if (page_source_selector.xpath('//*[@id="activity-name"]/text()')):
+            data['title'] = page_source_selector.xpath('//*[@id="activity-name"]/text()')
         else:
             data['title'] = ''
-        data['title'] = data['title'].strip()
+
+        for ix in data['title']:
+            data['title'] = ix.strip()
+        
+        data['description'] = data['title']
+
+        print 'description is '+ data['description']
 
         checkrelate = self.checkRelate(data['user'])
         print 'user:' + data['user'] + 'name:' + self.name
