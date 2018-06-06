@@ -31,6 +31,11 @@ pip install requests
 pip install lxml
 pip install BeautifulSoup
 
+
+
+
+
+
 # Ubantu
 apt-get install libmysqld-dev
 easy_install MySQL-python
@@ -39,6 +44,21 @@ easy_install MySQL-python
 yum install python-devel
 yum install mysql-devel
 
+```
+
+#### 安装 PhantomJS、selenium
+
+```
+pip install selenium
+
+# 安装phantomjs
+http://phantomjs.org/download.html
+
+
+# 使用webdriver.PhantomJS 抓取渲染后的Html
+driver = webdriver.PhantomJS(executable_path='这里按各个系统写pha-js的执行路径',service_args=['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1'])
+driver.get(each)
+page_source =  driver.page_source
 ```
 
 
