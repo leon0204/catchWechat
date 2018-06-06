@@ -47,8 +47,9 @@ yum install mysql-devel
 ```
 pip install selenium
 
-# 安装phantomjs
+# 安装phantomjs 如果压缩包被墙，可以fq下载之后，再传到服务器，解压获得可执行文件路径，引入项目使用
 http://phantomjs.org/download.html
+wget -O phantomjs-2.1.1-linux-x86_64.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
 
 
 # 使用webdriver.PhantomJS 抓取渲染后的Html
