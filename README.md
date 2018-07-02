@@ -14,7 +14,8 @@ pre：
  延伸：
  - `dailydown.py` ： <a href="http://www.leon0204.com/wechat.html" target="_blank"> 获取配置公众号，每日发布的文章列表 </a>
  
- 
+## 环境依赖
+
 
 ####  安装 pip
 ```
@@ -58,6 +59,7 @@ driver.get(each)
 page_source =  driver.page_source
 ```
 
+### 使用
 
 ####  获取代码
 ```
