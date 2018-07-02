@@ -12,8 +12,8 @@ pre：
  
  
  延伸：
- - `dailydown.py` ： <a href="http://www.leon0204.com/wechat.html" target="_blank">采集配置的公众号的文章效果</a>
- - `dailydownbyKeywords.py` ： <a target="_blank" href="http://www.leon0204.com/wechat.html">采集搜狗首页10个热点关键词，每日更新关键词对应的前10篇文章</a>   
+ - `dailydown.py` ： <a href="http://www.leon0204.com/wechat.html" target="_blank"> 获取配置公众号，每日发布的文章列表 </a>
+ 
  
 
 ####  安装 pip
@@ -100,6 +100,10 @@ python dailydown.py
 
 #### 更新 v2
 添加 phantomjs 支持 抓取 js 渲染页面
+
+#### 更新 v3
+更新 dailydown.py 脚本 ，获取配置的公众号列表每日发布的所有文章列表
+
 
 #### 更新 v3 （18.7.2）
 1. 使用爬虫的时候，注意 time.sleep()， 不然很容易被封禁 。
