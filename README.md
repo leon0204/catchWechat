@@ -4,7 +4,7 @@
 pre：
    没有用框架，直接clone 就可以用 
    
-基于 python 2.7 。使用3的话，编码和print语法更换一下即可。
+基于 python 2.7 。使用3的话，根据 error 自行替换一下包即可
 
 
  - `catch_allList.py` ：  <a href="http://www.leon0204.com/wechat.html" target="_blank">推荐使用，抓取指定 公众号url (持续更新)</a>
