@@ -110,7 +110,7 @@ python dailydown.py
 
 
 
-如果对你有帮助的话，帮忙右上角star一下，谢谢！
-欢迎 PR 讨论～ 
-个人wechat ：leon0204 
+- 如果对你有帮助的话，帮忙右上角star一下，谢谢！
+- 欢迎 PR 讨论～ 
+- 个人wechat ：leon0204 
 
