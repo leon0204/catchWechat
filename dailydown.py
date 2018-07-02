@@ -1,238 +1,239 @@
 #!/usr/bin/python
-#-*- coding:utf8 -*-
-# (老版本)
-#每天采集数据库中 公众号 的更新文章
-#这三行代码是防止在python2上面编码错误的，在python3上面不要要这样设置
+# -*- coding:utf8 -*-
+
 import sys
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-from urllib import quote
-
-
 import requests
 import time
-import re
-import json
-import os
-import ssl
+import datetime
 import random
-
-import urllib
-import urllib2
-from lxml import etree
-from lxml import html
-
-from bs4 import BeautifulSoup
-
 import MySQLdb as mdb
+
+from lxml import etree
+from selenium import webdriver
+from tqdm import tqdm
+
 
 class weixin_spider:
     def __init__(self, ):
         self.check = True
+        self.ua = [
+    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
+    "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)",
+    "Mozilla/4.0 (compatible; MSIE 7.0; AOL 9.5; AOLBuild 4337.35; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
+    "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)",
+    "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 2.0.50727; Media Center PC 6.0)",
+    "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)",
+    "Mozilla/4.0 (compatible; MSIE 7.0b; Windows NT 5.2; .NET CLR 1.1.4322; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 3.0.04506.30)",
+    "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN) AppleWebKit/523.15 (KHTML, like Gecko, Safari/419.3) Arora/0.3 (Change: 287 c9dfb30)",
+    "Mozilla/5.0 (X11; U; Linux; en-US) AppleWebKit/527+ (KHTML, like Gecko, Safari/419.3) Arora/0.6",
+    "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.2pre) Gecko/20070215 K-Ninja/2.1.1",
+    "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9) Gecko/20080705 Firefox/3.0 Kapiko/3.0",
+    "Mozilla/5.0 (X11; Linux i686; U;) Gecko/20070322 Kazehakase/0.4.5",
+    "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.8) Gecko Fedora/1.9.0.8-1.fc10 Kazehakase/0.5.6",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.20 (KHTML, like Gecko) Chrome/19.0.1036.7 Safari/535.20",
+    "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52",
+]
 
+    
 
-    def getSubList(self):
-        # 查询公众号列表
-        self.config = {
-            'host': '127.0.0.1',
-            'port': 3306,
-            'user': 'XXXX',
-            'passwd': 'XXXX',
-            'db': 'XXXX',
-            'charset': 'utf8mb4'
-        }
-        self.conn = mdb.connect(**self.config)
-
-        cursor = self.conn.cursor()
-        try:
-            sql = "select subEname,subName from subscription where status= 1 "
-            cursor.execute(sql)
-            temp = cursor.fetchall()
-            return  temp
-            # 如果没有设置自动提交事务，则这里需要手动提交一次
-            self.conn.commit()
-        except:
-            import traceback
-            traceback.print_exc()
-            # 发生错误时会滚
-            self.conn.rollback()
-        finally:
-            # 关闭游标连接
-            cursor.close()
-            # 关闭数据库连接
-            self.conn.close()
-
-    #入口函数
+    # 入口函数
     def run(self):
         self.sublist = self.getSubList()
-        for self.ename, self.name in self.sublist:
-            self.search_url = ("http://weixin.sogou.com/weixin?usip=&query=%s&ft=&tsn=1&et=&interation=&type=2&wxid=&page=1&ie=utf8") %(self.ename)
+        sublen = len(self.sublist)
+
+        for i in tqdm(range(0,sublen)):
+            self.ename =  self.sublist[i][0].strip()
+            self.name =  self.sublist[i][1].strip()
+
+            time.sleep(2)  # 时间间隔为2s发送一次抓取请求，防止禁ip
+            self.search_url = ("http://weixin.sogou.com/weixin?type=1&s_from=input&query=%s&ie=utf8&_sug_=n&_sug_type_=") % (self.name)
+            # subcatch 查找1天内的
             # 爬虫伪装头部设置
-            self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0","Referer": self.search_url}
-            self.log('开始抓取公众号[' + self.name + ']' + time.strftime('%Y-%m-%d') + '的文章'   +':')
-            maincontent = self.get_list(self.search_url)
+            self.uachoice = random.choice(self.ua)
+            self.headers = {"User-Agent": self.uachoice,"Referer": self.search_url}
+            maincontent = self.get_index(self.search_url)
 
+    '''
+    获取公众号主页地址
+    '''
 
-
-    # 获得公众号文章列表
-    def get_list(self, search_url):
+    def get_index(self, search_url):
+        time.sleep(2)
 
         html = requests.get(search_url, headers=self.headers, verify=False).content
         selector = etree.HTML(html)
+
         # 提取文本
-        content = selector.xpath('//div[@class="news-box"]/ul/li/div[@class="txt-box"]/h3/a/@href')
-        for list in content:
-            maincontent = self.get_content(list)
+        # content = selector.xpath('//div[@class="news-box"]/ul/li/div[@class="txt-box"]/h3/a/@href')
+        aHref = selector.xpath('//div[@class="txt-box"]/p/a/@href')
+        content = selector.xpath('//div[@class="txt-box"]/p[@class="info"]/label/text()')
 
-
-
-    # 获得公众号文章列表详情内容
-    def get_content(self, each):
-        data = {}
-        article = requests.get(each, headers=self.headers, verify=False).content
-
-        soup = BeautifulSoup(article, 'html.parser')  # 文档对象
-        selector = etree.HTML(article)
-        #
-
-        # 2 作者
-        if(selector.xpath('//*[@id="post-user"]/text()')):
-            data['user'] = selector.xpath('//*[@id="post-user"]/text()')[0]
-        else:
-            data['user'] = ''
-        # 1 标题
-        if (selector.xpath('//*[@id="activity-name"]/text()')):
-            data['title'] = selector.xpath('//*[@id="activity-name"]/text()')[0]
-        else:
-            data['title'] = ''
-        data['title'] = data['title'].strip()
-
-        # checkrelate = self.checkRelate(data['user'])
-        print 'user:' + data['user'] + 'name:' + self.name
-        checkrelate = (False,True)[data['user'] == self.name]
-        isexist = self.checkExist(data['title'])
-
-        if(checkrelate and isexist):#判断是否是目标公众号
-
-            #3 发布时间
-            if (selector.xpath('//*[@id="post-date"]/text()')):
-                data['createtime'] = selector.xpath('//*[@id="post-date"]/text()')[0]
+        for ci in range(len(content)):
+            content[ci] = content[ci].encode('utf-8')
+            self.ename = self.ename.encode("utf-8")
+            if (content[ci] == self.ename):
+                print '获取到:' + content[ci] + '地址入口，正在进入...'
+                catchUrlIndex = aHref[ci]
+                # print catchUrlIndex
+                self.get_list(catchUrlIndex)
             else:
-                data['createtime'] = ''
+                pass
 
-            #作者昵称
-            # data['nickname'] = selector.xpath('//*[@id="img-content"]/div[1]/em[2]/text()')[0]
+    '''
+    获得公众号主页爬取所有文章列表，这里只显示最近10条群发 ，再筛选今天的
+    '''
 
-            # 5.1 原文url
-            data['url'] = each
+    def get_list(self, catchUrlIndex):
+        time.sleep(2)
 
-            # 4 图片
-
-            #先获取全文，待会儿方便替换图片地址
-            body = soup.find_all('div', class_='rich_media_content ')[0]
-            body = str(body).replace('data-src', 'src')
-
-
-            imgurl = selector.xpath('//*[@id="js_content"]/p/img/@data-src')
-            imgSpan = selector.xpath('//*[@id="js_content"]/p/span/img/@data-src')
-            imgEmSpan = selector.xpath('//*[@id="js_content"]/p/em/span/img/@data-src')
-            imgStrongSpan = selector.xpath('//*[@id="js_content"]/p/strong/span/img/@data-src')
-            imgStrongSpanStrongSpan = selector.xpath('//*[@id="js_content"]/p/strong/span/strong/span/img/@data-src')
-            imgTotal = imgurl + imgSpan + imgEmSpan + imgStrongSpan + imgStrongSpanStrongSpan
-
-            img = ''
-            for i in range(len(imgTotal)):
-                ##1 下载图片
-                imgpath = str(time.time()) + str(int(random.uniform(10, 20)))   # 用当前时间戳＋一个随机数 保证图片名称唯一性
-                if not os.path.exists('/home/wwwroot/laravel/public/img/weixin/' + data['user']):
-                    os.makedirs('/home/wwwroot/laravel/public/img/weixin/' + data['user'], mode=0755)
-                newImgPath = '/home/wwwroot/laravel/public/img/weixin/' + data['user'] + '/' + imgpath + '.jpg'
-                urllib.urlretrieve(imgTotal[i],newImgPath)
-
-                # 2 替换body 的愿路径 和本服务器的路径
-                saveimgpath = newImgPath.replace('/home/wwwroot/laravel/public','')
-                body = body.replace(imgTotal[i],'http://leon0204.com'+saveimgpath)
-
-                img += 'http://leon0204.com'+newImgPath
-            data['imgurl'] = img
-
-            #5 文章主体部分
-            file_path = data['title']
-            file = file_path.replace('/', '-')
-            if not os.path.exists('/home/wwwroot/url/weixin/' + data['user']):
-                os.makedirs('/home/wwwroot/url/weixin/' + data['user'], mode=0755)
-            with open('/home/wwwroot/url/weixin/' + data['user'] + '/' + file, 'w') as f:
-                f.write(body)
-            data['body'] = '/home/wwwroot/url/weixin/' + data['user'] + '/' + file
+        # 使用webdriver.PhantomJS
+        driver = webdriver.PhantomJS(executable_path='/usr/local/Cellar/phantomjs/2.1.1/bin/phantomjs',
+                                     service_args=['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1'])
+        driver.get(catchUrlIndex)
+        article1 = driver.page_source
+        selector1 = etree.HTML(article1)
 
 
+        # 提取文本
+        content = selector1.xpath('//div[@class="weui_media_bd"]/p[@class="weui_media_extra_info"]/text()')
+        aText = selector1.xpath('//div[@class="weui_media_bd"]/h4/text()')
+        # for i in aText:
+        #     print(i)
+        #
+        # sys.exit(0)
 
-            #6 信息处理状态： 0 未处理  1 图片已经转储到本地 2 已经发布到线上待处理数据库
-            data['status'] = 0
-
-            self.log('suceess : 抓取文章：'+data['title'] +'成功！' )
-            ##存储
-            self.save(data)
-        else:
-            self.log('waring : have checked unlink-subscription，catch forwards!')
+        aHref = selector1.xpath('//div[@class="weui_media_bd"]/h4/@hrefs')
 
 
+        y = datetime.datetime.now().year
+        m = datetime.datetime.now().month
+        d = datetime.datetime.now().day
 
-    def save(self,data):
-        # 连接数据库
+        # 每天晚上11点开始爬 存数据库，然后脚本处理
+        today = str(y)+'年'+ str(m) + '月'+ str(d-1)+'日'
+        # yesterday = "2018年6月30日"
 
+        print('开始获取：'+ today + '的文章')
+
+        if (len(content) ==0):
+            #更改爬虫被封状态
+            self.upSubStatus()
+            sys.exit(0)
+
+        for contenti in (range(len(content))):
+            if(today == content[contenti]):
+                listUrl = 'https://mp.weixin.qq.com' + aHref[contenti]
+                listaText = aText[contenti].encode('utf8').strip().replace(' ','').replace("\n", "")
+                print(listaText)
+                isexist = self.checkExist(listaText)
+                if(isexist):
+                    # print listUrl
+                    # 插入数据库待采集队列
+                    self.insert_save(listUrl,self.name,listaText)
+                    self.upSubTime(self.ename)
+                else:
+                    print('-')
+            else:
+                print('--')
+
+
+
+    def insert_save(self, url,name,listaText):
         self.config = {
-            'host': '127.0.0.1',
+             'host': 'host',
             'port': 3306,
-            'user': 'XXXX',
-            'passwd': 'XXXX',
-            'db': 'XXXX',
-            'charset': 'utf8mb4'
+            'user': 'user',
+            'passwd': 'pwd',
+            'db': 'weCatch',
+            'charset': 'utf8',
         }
         self.conn = mdb.connect(**self.config)
 
         cursor = self.conn.cursor()
         try:
             sql = (
-            "insert into subcatch (title, user, createtime, body, status,url,imgurl) values('%s', '%s', '%s','%s', '%s', '%s', '%s')" %
-            (data['title'],data['user'],data['createtime'],data['body'],data['status'],data['url'],data['imgurl']))
-
+                "insert into queue (url,subname,title) values('%s','%s','%s')" %
+                (url,name,listaText))
+            print(sql)
             cursor.execute(sql)
 
-
-            # 如果没有设置自动提交事务，则这里需要手动提交一次
             self.conn.commit()
         except:
             import traceback
             traceback.print_exc()
-            # 发生错误时会滚
             self.conn.rollback()
         finally:
-            # 关闭游标连接
             cursor.close()
-            # 关闭数据库连接
             self.conn.close()
 
-
-
-    def checkExist(self,title):
-        #检查查到的文章标题是否存在
-        #连接数据库
-
-        self.config = {
-            'host': '127.0.0.1',
+    def upSubTime(self, Ename):
+        config = {
+            'host': 'host',
             'port': 3306,
-            'user': 'XXXX',
-            'passwd': 'XXXX',
-            'db': 'XXXX',
-            'charset': 'utf8mb4'
+            'user': 'user',
+            'passwd': 'pwd',
+            'db': 'weCatch',
+            'charset': 'utf8',
+        }
+        conn = mdb.connect(**config)
+        lastTime = time.strftime('%Y-%m-%d')
+        cursor = conn.cursor()
+        try:
+            sql = ("update subscription SET catchTime ='%s'  WHERE subEname = '%s'" % (lastTime, Ename))
+            cursor.execute(sql)
+            conn.commit()
+        except:
+            import traceback
+            traceback.print_exc()
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()
+
+    def upSubStatus(self):
+        config = {
+            'host': 'host',
+            'port': 3306,
+            'user': 'user',
+            'passwd': 'pwd',
+            'db': 'weCatch',
+            'charset': 'utf8',
+        }
+        conn = mdb.connect(**config)
+        lastTime = time.strftime('%Y-%m-%d')
+        cursor = conn.cursor()
+        try:
+            sql = ("update subStatus SET status =1 ")
+            cursor.execute(sql)
+            conn.commit()
+        except:
+            import traceback
+            traceback.print_exc()
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()
+
+    def checkExist(self, title):
+        # 检查查到的文章标题是否存在
+        self.config = {
+            'host': 'host',
+            'port': 3306,
+            'user': 'user',
+            'passwd': 'pwd',
+            'db': 'weCatch',
+            'charset': 'utf8',
         }
         self.conn = mdb.connect(**self.config)
 
         cursor = self.conn.cursor()
         try:
-            sql ="select id from subcatch where title ='%s'  " %(title)
+            sql = "select id from queue where title ='%s'  " % (title)
             cursor.execute(sql)
             # 如果没有设置自动提交事务，则这里需要手动提交一次
             self.conn.commit()
@@ -253,24 +254,33 @@ class weixin_spider:
             # 关闭数据库连接
             self.conn.close()
 
+       def getSubList(self):
+        self.config = {
+            'host': 'host',
+            'port': 3306,
+            'user': 'user',
+            'passwd': 'pwd',
+            'db': 'weCatch',
+            'charset': 'utf8',
+        }
+        self.conn = mdb.connect(**self.config)
+
+        cursor = self.conn.cursor()
+        try:
+            sql = "select subEname,subName from subscription where status= 1 "
+            cursor.execute(sql)
+            temp = cursor.fetchall()
+            return temp
+            self.conn.commit()
+        except:
+            import traceback
+            traceback.print_exc()
+            self.conn.rollback()
+        finally:
+            cursor.close()
+            self.conn.close()
+        # main
 
 
-
-
-
-    def get_search_result_by_keywords(self):
-        self.log('搜索地址为：%s' % self.sogou_search_url)
-        return self.s.get(self.sogou_search_url, headers=self.headers, timeout=self.timeout).content
-
-
-    def log(self,msg):
-        # print u'%s: %s' % (time.strftime('%Y-%m-%d %H:%M:%S'), msg) 用新的 不提示日期的
-        print msg
-
-
-
-
-
-    # main
 if __name__ == '__main__':
     weixin_spider().run()
