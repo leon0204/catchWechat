@@ -59,7 +59,7 @@ driver.get(each)
 page_source =  driver.page_source
 ```
 
-### 使用
+## 开始使用
 
 ####  获取代码
 ```
@@ -87,6 +87,8 @@ python dailydown.py
 ```
 数据会存在 `subcatch` 表中 
 
+
+## 优化和注意事项
 
 #### 优化
 1 资源删除，热点抓取bug 修复
